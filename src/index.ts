@@ -44,6 +44,11 @@ app.get('*', async (c) => {
     path = path.slice(0, -1);
   }
 
+  // Redirect /skills/... to /... (canonical URLs don't include the prefix)
+  if (path.startsWith('/skills/')) {
+    return c.redirect(path.slice('/skills'.length), 301);
+  }
+
   const url = mapPath(path);
   if (!url) {
     return c.text('Bad Request', 400);
