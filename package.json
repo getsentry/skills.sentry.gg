@@ -1,0 +1,20 @@
+{
+  "name": "skills-sentry-gg",
+  "version": "1.0.0",
+  "description": "Proxy service mapping pretty URLs to raw GitHub markdown for skills.sentry.gg",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "hono": "^4.7.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.2"
+  }
+}
