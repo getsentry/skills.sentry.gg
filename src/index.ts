@@ -24,11 +24,23 @@ function setCache(key: string, body: string, status: number): void {
   cache.set(key, { body, status, fetchedAt: Date.now() });
 }
 
+// Category shortcuts — direct entry points for router skills
+const CATEGORY_ROUTES: Record<string, string> = {
+  '/sdks': '/sentry-sdk-setup/SKILL.md',
+  '/workflows': '/sentry-workflow/SKILL.md',
+  '/features': '/sentry-feature-setup/SKILL.md',
+};
+
 // URL mapper
 function mapPath(path: string): string | null {
   if (path.includes('..')) return null;
   if (path === '/' || path === '/SKILL_TREE.md') {
     return `${BASE}/SKILL_TREE.md`;
+  }
+  // Category shortcuts resolve to their router skill
+  const redirect = CATEGORY_ROUTES[path];
+  if (redirect) {
+    return `${BASE}/skills${redirect}`;
   }
   return `${BASE}/skills${path}`;
 }
