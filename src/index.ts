@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import type { Context } from "hono";
 import { serve } from "@hono/node-server";
 import { trimTrailingSlash } from "hono/trailing-slash";
+import { getPath } from "hono/utils/url";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 const BASE = "https://raw.githubusercontent.com/getsentry/sentry-for-ai/refs/heads/main";
@@ -41,7 +42,11 @@ async function proxyText(c: Context, url: string): Promise<Response> {
 }
 
 // App
-const app = new Hono();
+// Hono does not normalize double slashes in paths (https://github.com/honojs/hono/issues/3034),
+// which can lead to open redirects via protocol-relative URLs (e.g. //evil.com).
+const app = new Hono({
+  getPath: (request) => getPath(request).replace(/\/+/g, "/"),
+});
 app.use(trimTrailingSlash({ alwaysRedirect: true }));
 
 app.get("/", (c) => proxyText(c, `${BASE}/SKILL_TREE.md`));
