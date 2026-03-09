@@ -1,108 +1,66 @@
-import { Hono } from 'hono';
-import { serve } from '@hono/node-server';
+import { Hono } from "hono";
+import type { Context } from "hono";
+import { serve } from "@hono/node-server";
+import { trimTrailingSlash } from "hono/trailing-slash";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
 
-const BASE = 'https://raw.githubusercontent.com/getsentry/sentry-for-ai/refs/heads/main';
+const BASE = "https://raw.githubusercontent.com/getsentry/sentry-for-ai/refs/heads/main";
 
-// Cache
-interface CacheEntry {
-  body: string;
-  status: number;
-  fetchedAt: number;
-}
-
-const cache = new Map<string, CacheEntry>();
-
-function getCache(key: string): CacheEntry | null {
-  const entry = cache.get(key);
-  if (!entry) return null;
-  const ttl = entry.status === 200 ? 5 * 60 * 1000 : 1 * 60 * 1000;
-  if (Date.now() - entry.fetchedAt > ttl) return null;
-  return entry;
-}
-
-function setCache(key: string, body: string, status: number): void {
-  cache.set(key, { body, status, fetchedAt: Date.now() });
-}
-
-// Category shortcuts — direct entry points for router skills
-const CATEGORY_ROUTES: Record<string, string> = {
-  '/sdks': '/sentry-sdk-setup/SKILL.md',
-  '/workflows': '/sentry-workflow/SKILL.md',
-  '/features': '/sentry-feature-setup/SKILL.md',
-};
-
-// URL mapper
-function mapPath(path: string): string | null {
-  if (path.includes('..')) return null;
-  if (path === '/' || path === '/SKILL_TREE.md') {
-    return `${BASE}/SKILL_TREE.md`;
+function buildSkillUrl(pathname: string): string | null {
+  if (!pathname.startsWith("/")) {
+    return null;
   }
-  // Category shortcuts resolve to their router skill
-  const redirect = CATEGORY_ROUTES[path];
-  if (redirect) {
-    return `${BASE}/skills${redirect}`;
+
+  const segments = pathname.slice(1).split("/");
+  if (segments.some((segment) => segment.length === 0 || segment === "." || segment === "..")) {
+    return null;
   }
-  return `${BASE}/skills${path}`;
+  if (segments[0] === "skills") {
+    return null;
+  }
+
+  return `${BASE}/skills${pathname}`;
+}
+
+async function proxyText(c: Context, url: string): Promise<Response> {
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    const body = await res.text();
+    return c.text(body, res.status as ContentfulStatusCode, {
+      "Content-Type": "text/plain; charset=utf-8",
+    });
+  } catch {
+    return c.text("Bad Gateway", 502);
+  }
 }
 
 // App
 const app = new Hono();
+app.use(trimTrailingSlash({ alwaysRedirect: true }));
 
-app.get('*', async (c) => {
-  let path = c.req.path;
-  if (path.length > 1 && path.endsWith('/')) {
-    path = path.slice(0, -1);
-  }
+app.get("/", (c) => proxyText(c, `${BASE}/SKILL_TREE.md`));
+app.get("/sdks", (c) => proxyText(c, `${BASE}/skills/sentry-sdk-setup/SKILL.md`));
+app.get("/workflows", (c) => proxyText(c, `${BASE}/skills/sentry-workflow/SKILL.md`));
+app.get("/features", (c) => proxyText(c, `${BASE}/skills/sentry-feature-setup/SKILL.md`));
+app.get("/skills", (c) => {
+  const url = new URL(c.req.url);
+  return c.redirect(`/${url.search}`, 301);
+});
+app.get("/skills/*", (c) => {
+  const url = new URL(c.req.url);
+  const canonicalPath = c.req.path.slice("/skills".length) || "/";
+  return c.redirect(`${canonicalPath}${url.search}`, 301);
+});
 
-  // Redirect /skills/... to /... (canonical URLs don't include the prefix)
-  if (path.startsWith('/skills/')) {
-    return c.redirect(path.slice('/skills'.length), 301);
-  }
-
-  const url = mapPath(path);
+app.get("/:skill/*", (c) => {
+  const url = buildSkillUrl(c.req.path);
   if (!url) {
-    return c.text('Bad Request', 400);
+    return c.text("Bad Request", 400);
   }
-
-  const cached = getCache(url);
-  if (cached) {
-    return c.text(cached.body, cached.status as any, {
-      'Content-Type': 'text/plain; charset=utf-8',
-    });
-  }
-
-  let body: string;
-  let status: number;
-
-  try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
-    body = await res.text();
-    status = res.status;
-    if (status >= 500) {
-      const stale = cache.get(url);
-      if (stale) {
-        return c.text(stale.body, stale.status as any, {
-          'Content-Type': 'text/plain; charset=utf-8',
-        });
-      }
-    }
-    setCache(url, body, status);
-  } catch (err) {
-    const stale = cache.get(url);
-    if (stale) {
-      return c.text(stale.body, stale.status as any, {
-        'Content-Type': 'text/plain; charset=utf-8',
-      });
-    }
-    return c.text('Bad Gateway', 502);
-  }
-
-  return c.text(body, status as any, {
-    'Content-Type': 'text/plain; charset=utf-8',
-  });
+  return proxyText(c, url);
 });
 
 const port = Number(process.env.PORT) || 3000;
 serve({ fetch: app.fetch, port }, () => {
-  console.log(`Listening on port ${port}`);
+  console.log(`Listening on http://localhost:${port}`);
 });
