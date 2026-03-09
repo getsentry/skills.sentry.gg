@@ -1,4 +1,4 @@
-# skills.sentry.gg
+# skills.sentry.dev
 
 Tiny proxy that gives pretty URLs to Sentry AI skills hosted on GitHub.
 
@@ -7,7 +7,7 @@ Tiny proxy that gives pretty URLs to Sentry AI skills hosted on GitHub.
 Tell your AI coding assistant:
 
 ```
-Use curl to download, read and follow: https://skills.sentry.gg/sdks
+Use curl to download, read and follow: https://skills.sentry.dev/sdks
 ```
 
 **Why curl?** Skills are detailed 10–20 KB markdown files. Fetch tools (like WebFetch) often summarize them, losing critical configuration details. `curl -sL` guarantees the full content.
@@ -16,22 +16,22 @@ Use curl to download, read and follow: https://skills.sentry.gg/sdks
 
 | URL | What it loads |
 |---|---|
-| `skills.sentry.gg/` | Full skill index (SKILL_TREE.md) |
-| `skills.sentry.gg/sdks` | SDK setup — detect platform and install Sentry |
-| `skills.sentry.gg/workflows` | Workflows — debug issues, review code, upgrade SDKs |
-| `skills.sentry.gg/features` | Features — AI monitoring, alerts, OpenTelemetry |
-| `skills.sentry.gg/<skill-name>/SKILL.md` | Individual skill file |
+| `skills.sentry.dev/` | Full skill index (SKILL_TREE.md) |
+| `skills.sentry.dev/sdks` | SDK setup — detect platform and install Sentry |
+| `skills.sentry.dev/workflows` | Workflows — debug issues, review code, upgrade SDKs |
+| `skills.sentry.dev/features` | Features — AI monitoring, alerts, OpenTelemetry |
+| `skills.sentry.dev/<skill-name>/SKILL.md` | Individual skill file |
 
 ## URL Mapping
 
 | Pretty URL | GitHub Raw URL |
 |---|---|
-| `skills.sentry.gg/` | `.../main/SKILL_TREE.md` |
-| `skills.sentry.gg/sdks` | `.../main/skills/sentry-sdk-setup/SKILL.md` |
-| `skills.sentry.gg/workflows` | `.../main/skills/sentry-workflow/SKILL.md` |
-| `skills.sentry.gg/features` | `.../main/skills/sentry-feature-setup/SKILL.md` |
-| `skills.sentry.gg/sentry-nextjs-sdk/SKILL.md` | `.../main/skills/sentry-nextjs-sdk/SKILL.md` |
-| `skills.sentry.gg/sentry-nextjs-sdk/references/tracing.md` | `.../main/skills/sentry-nextjs-sdk/references/tracing.md` |
+| `skills.sentry.dev/` | `.../main/SKILL_TREE.md` |
+| `skills.sentry.dev/sdks` | `.../main/skills/sentry-sdk-setup/SKILL.md` |
+| `skills.sentry.dev/workflows` | `.../main/skills/sentry-workflow/SKILL.md` |
+| `skills.sentry.dev/features` | `.../main/skills/sentry-feature-setup/SKILL.md` |
+| `skills.sentry.dev/sentry-nextjs-sdk/SKILL.md` | `.../main/skills/sentry-nextjs-sdk/SKILL.md` |
+| `skills.sentry.dev/sentry-nextjs-sdk/references/tracing.md` | `.../main/skills/sentry-nextjs-sdk/references/tracing.md` |
 
 All paths resolve to files in [`getsentry/sentry-for-ai`](https://github.com/getsentry/sentry-for-ai).
 
@@ -45,8 +45,8 @@ npm run dev
 ## Docker
 
 ```bash
-docker build -t skills-sentry-gg .
-docker run -p 3000:3000 skills-sentry-gg
+docker build -t skills-sentry-dev .
+docker run -p 3000:3000 skills-sentry-dev
 ```
 
 ## Environment Variables

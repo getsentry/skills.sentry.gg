@@ -48,8 +48,6 @@ function mapPath(path: string): string | null {
 // App
 const app = new Hono();
 
-app.get('/health', (c) => c.text('ok'));
-
 app.get('*', async (c) => {
   let path = c.req.path;
   if (path.length > 1 && path.endsWith('/')) {
