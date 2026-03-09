@@ -14,6 +14,9 @@ function buildSkillUrl(pathname: string): string | null {
   if (segments.some((segment) => segment.length === 0 || segment === "." || segment === "..")) {
     return null;
   }
+  if (segments[0] === "skills") {
+    return null;
+  }
 
   return `${BASE}/skills${pathname}`;
 }
@@ -38,6 +41,15 @@ app.get("/SKILL_TREE.md", (c) => proxyText(c, `${BASE}/SKILL_TREE.md`));
 app.get("/sdks", (c) => proxyText(c, `${BASE}/skills/sentry-sdk-setup/SKILL.md`));
 app.get("/workflows", (c) => proxyText(c, `${BASE}/skills/sentry-workflow/SKILL.md`));
 app.get("/features", (c) => proxyText(c, `${BASE}/skills/sentry-feature-setup/SKILL.md`));
+app.get("/skills", (c) => {
+  const url = new URL(c.req.url);
+  return c.redirect(`/${url.search}`, 301);
+});
+app.get("/skills/*", (c) => {
+  const url = new URL(c.req.url);
+  const canonicalPath = c.req.path.slice("/skills".length) || "/";
+  return c.redirect(`${canonicalPath}${url.search}`, 301);
+});
 
 app.get("/:skill/SKILL.md", (c) => {
   const url = buildSkillUrl(c.req.path);
