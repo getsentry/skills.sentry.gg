@@ -1,9 +1,16 @@
-import { sentry } from "@sentry/hono/cloudflare";
+import * as Sentry from "@sentry/node";
 import { Hono } from "hono";
 import type { Context } from "hono";
 import { serve } from "@hono/node-server";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  sendDefaultPii: true,
+  tracesSampleRate: 1.0,
+  integrations: [Sentry.honoIntegration()],
+});
 
 const BASE = "https://raw.githubusercontent.com/getsentry/sentry-for-ai/refs/heads/main";
 
@@ -41,11 +48,7 @@ async function proxyText(c: Context, url: string): Promise<Response> {
 
 // App
 const app = new Hono();
-app.use(sentry(app, {
-  dsn: process.env.SENTRY_DSN,
-  sendDefaultPii: true,
-  tracesSampleRate: 1.0,
-}));
+Sentry.setupHonoErrorHandler(app);
 
 app.use(trimTrailingSlash({ alwaysRedirect: true }));
 app.get("/", (c) => proxyText(c, `${BASE}/SKILL_TREE.md`));

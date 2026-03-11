@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.11",
-    "@sentry/hono": "^10.43.0",
+    "@sentry/node": "^10.43.0",
     "hono": "^4.12.7"
   },
   "devDependencies": {
