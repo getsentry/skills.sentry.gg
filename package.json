@@ -7,6 +7,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "pack-sdk": "cd ~/Projects/sentry-javascript/packages/hono && yarn build && npm pack --pack-destination $OLDPWD/vendor/ && cd $OLDPWD && npm install",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
@@ -15,12 +16,13 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.11",
-    "hono": "^4.12.5"
+    "@sentry/hono": "file:./vendor/sentry-hono-10.43.0.tgz",
+    "hono": "^4.12.7"
   },
   "devDependencies": {
-    "@types/node": "^25.3.5",
-    "oxfmt": "^0.36.0",
-    "oxlint": "^1.51.0",
+    "@types/node": "^25.4.0",
+    "oxfmt": "^0.38.0",
+    "oxlint": "^1.53.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
