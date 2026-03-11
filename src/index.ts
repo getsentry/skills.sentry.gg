@@ -1,3 +1,4 @@
+import { sentry } from "@sentry/hono/cloudflare";
 import { Hono } from "hono";
 import type { Context } from "hono";
 import { serve } from "@hono/node-server";
@@ -10,7 +11,6 @@ function buildSkillUrl(pathname: string): string | null {
   if (!pathname.startsWith("/")) {
     return null;
   }
-
   const segments = pathname.slice(1).split("/");
   if (segments.some((segment) => segment.length === 0 || segment === "." || segment === "..")) {
     return null;
@@ -18,7 +18,6 @@ function buildSkillUrl(pathname: string): string | null {
   if (segments[0] === "skills") {
     return null;
   }
-
   return `${BASE}/skills${pathname}`;
 }
 
@@ -42,8 +41,13 @@ async function proxyText(c: Context, url: string): Promise<Response> {
 
 // App
 const app = new Hono();
-app.use(trimTrailingSlash({ alwaysRedirect: true }));
+app.use(sentry(app, {
+  dsn: process.env.SENTRY_DSN,
+  sendDefaultPii: true,
+  tracesSampleRate: 1.0,
+}));
 
+app.use(trimTrailingSlash({ alwaysRedirect: true }));
 app.get("/", (c) => proxyText(c, `${BASE}/SKILL_TREE.md`));
 app.get("/sdks", (c) => proxyText(c, `${BASE}/skills/sentry-sdk-setup/SKILL.md`));
 app.get("/workflows", (c) => proxyText(c, `${BASE}/skills/sentry-workflow/SKILL.md`));
@@ -52,6 +56,7 @@ app.get("/skills", (c) => {
   const url = new URL(c.req.url);
   return c.redirect(`/${url.search}`, 301);
 });
+
 app.get("/skills/*", (c) => {
   const url = new URL(c.req.url);
   const canonicalPath = c.req.path.slice("/skills".length) || "/";
@@ -67,6 +72,7 @@ app.get("/:skill/*", (c) => {
 });
 
 const port = Number(process.env.PORT) || 3000;
+
 serve({ fetch: app.fetch, port }, () => {
   console.log(`Listening on http://localhost:${port}`);
 });
