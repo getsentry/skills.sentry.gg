@@ -168,13 +168,23 @@ app.get("/features", (c) =>
   }),
 );
 // Direct entry point for the Cloudflare SDK reference. Unlike the other aliases
-// this targets the shared references library, not a skill — so the canonical
-// notePath sits under the /sentry-instrument references namespace, where the
-// index's relative links (./tracing.md, ../react/index.md, …) already resolve
-// via the references-library fallback below.
+// this targets the shared references library, not a skill. Agents resolve the
+// document's relative links (./tracing.md, ./nodejs-compat.md, …) against the
+// URL they fetched, so /cloudflare is a real namespace: /cloudflare/<file>
+// serves the matching file from references/sdks/cloudflare/. Registered before
+// the generic /:skill/* route so it wins the match.
 app.get("/cloudflare", (c) =>
   proxyText(c, `${BASE}/references/sdks/cloudflare/index.md`, {
-    notePath: "/sentry-instrument/references/sdks/cloudflare/index.md",
+    notePath: "/cloudflare/index.md",
+  }),
+);
+app.get("/cloudflare/index.md", (c) => {
+  const url = new URL(c.req.url);
+  return c.redirect(`/cloudflare${url.search}`, 301);
+});
+app.get("/cloudflare/:file{[a-z0-9-]+\\.md}", (c) =>
+  proxyText(c, `${BASE}/references/sdks/cloudflare/${c.req.param("file")}`, {
+    notePath: c.req.path,
   }),
 );
 // Skills link to the index with `../../SKILL_TREE.md`, which is right for the

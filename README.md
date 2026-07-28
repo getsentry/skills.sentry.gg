@@ -33,6 +33,7 @@ Use curl to download, read and follow: https://skills.sentry.dev/instrument
 | `skills.sentry.dev/workflows`                                           | `.../main/src/skills/sentry-workflow/SKILL.md`                   |
 | `skills.sentry.dev/features`                                            | `.../main/src/skills/sentry-feature-setup/SKILL.md`              |
 | `skills.sentry.dev/cloudflare`                                          | `.../main/src/references/sdks/cloudflare/index.md`               |
+| `skills.sentry.dev/cloudflare/<file>.md`                                | `.../main/src/references/sdks/cloudflare/<file>.md`              |
 | `skills.sentry.dev/sentry-instrument/SKILL.md`                          | `.../main/src/skills/sentry-instrument/SKILL.md`                 |
 | `skills.sentry.dev/sentry-instrument/references/sdks/nextjs/tracing.md` | `.../main/src/references/sdks/nextjs/tracing.md` (fallback path) |
 
