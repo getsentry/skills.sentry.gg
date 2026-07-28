@@ -55,6 +55,7 @@ const INDEX_PREAMBLE = [
   `| \`${ORIGIN}/instrument\` | Instrument your app — detect the platform and install Sentry |`,
   `| \`${ORIGIN}/workflows\` | Workflows — debug issues, review code, upgrade SDKs |`,
   `| \`${ORIGIN}/features\` | Features — AI monitoring, alerts, OpenTelemetry |`,
+  `| \`${ORIGIN}/cloudflare\` | Cloudflare — full SDK setup for Workers and Pages, including Agent Tracing |`,
   "",
   "### Following Links",
   "",
@@ -164,6 +165,26 @@ app.get("/workflows", (c) =>
 app.get("/features", (c) =>
   proxyText(c, `${BASE}/skills/sentry-feature-setup/SKILL.md`, {
     notePath: "/sentry-feature-setup/SKILL.md",
+  }),
+);
+// Direct entry point for the Cloudflare SDK reference. Unlike the other aliases
+// this targets the shared references library, not a skill. Agents resolve the
+// document's relative links (./tracing.md, ./nodejs-compat.md, …) against the
+// URL they fetched, so /cloudflare is a real namespace: /cloudflare/<file>
+// serves the matching file from references/sdks/cloudflare/. Registered before
+// the generic /:skill/* route so it wins the match.
+app.get("/cloudflare", (c) =>
+  proxyText(c, `${BASE}/references/sdks/cloudflare/index.md`, {
+    notePath: "/cloudflare/index.md",
+  }),
+);
+app.get("/cloudflare/index.md", (c) => {
+  const url = new URL(c.req.url);
+  return c.redirect(`/cloudflare${url.search}`, 301);
+});
+app.get("/cloudflare/:file{[a-z0-9-]+\\.md}", (c) =>
+  proxyText(c, `${BASE}/references/sdks/cloudflare/${c.req.param("file")}`, {
+    notePath: c.req.path,
   }),
 );
 // Skills link to the index with `../../SKILL_TREE.md`, which is right for the
