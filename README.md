@@ -20,6 +20,7 @@ Use curl to download, read and follow: https://skills.sentry.dev/instrument
 | `skills.sentry.dev/instrument`            | Instrument your app — detect platform and install Sentry |
 | `skills.sentry.dev/workflows`             | Workflows — debug issues, review code, upgrade SDKs      |
 | `skills.sentry.dev/features`              | Features — AI monitoring, alerts, OpenTelemetry          |
+| `skills.sentry.dev/cloudflare`            | Cloudflare — full SDK setup for Workers and Pages        |
 | `skills.sentry.dev/<skill-name>/SKILL.md` | Individual skill file                                    |
 
 ## URL Mapping
@@ -31,6 +32,7 @@ Use curl to download, read and follow: https://skills.sentry.dev/instrument
 | `skills.sentry.dev/sdks`                                                | → `301` redirect to `/instrument`                                |
 | `skills.sentry.dev/workflows`                                           | `.../main/src/skills/sentry-workflow/SKILL.md`                   |
 | `skills.sentry.dev/features`                                            | `.../main/src/skills/sentry-feature-setup/SKILL.md`              |
+| `skills.sentry.dev/cloudflare`                                          | `.../main/src/references/sdks/cloudflare/index.md`               |
 | `skills.sentry.dev/sentry-instrument/SKILL.md`                          | `.../main/src/skills/sentry-instrument/SKILL.md`                 |
 | `skills.sentry.dev/sentry-instrument/references/sdks/nextjs/tracing.md` | `.../main/src/references/sdks/nextjs/tracing.md` (fallback path) |
 

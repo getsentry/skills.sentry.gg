@@ -55,6 +55,7 @@ const INDEX_PREAMBLE = [
   `| \`${ORIGIN}/instrument\` | Instrument your app — detect the platform and install Sentry |`,
   `| \`${ORIGIN}/workflows\` | Workflows — debug issues, review code, upgrade SDKs |`,
   `| \`${ORIGIN}/features\` | Features — AI monitoring, alerts, OpenTelemetry |`,
+  `| \`${ORIGIN}/cloudflare\` | Cloudflare — full SDK setup for Workers and Pages, including Agent Tracing |`,
   "",
   "### Following Links",
   "",
@@ -164,6 +165,16 @@ app.get("/workflows", (c) =>
 app.get("/features", (c) =>
   proxyText(c, `${BASE}/skills/sentry-feature-setup/SKILL.md`, {
     notePath: "/sentry-feature-setup/SKILL.md",
+  }),
+);
+// Direct entry point for the Cloudflare SDK reference. Unlike the other aliases
+// this targets the shared references library, not a skill — so the canonical
+// notePath sits under the /sentry-instrument references namespace, where the
+// index's relative links (./tracing.md, ../react/index.md, …) already resolve
+// via the references-library fallback below.
+app.get("/cloudflare", (c) =>
+  proxyText(c, `${BASE}/references/sdks/cloudflare/index.md`, {
+    notePath: "/sentry-instrument/references/sdks/cloudflare/index.md",
   }),
 );
 // Skills link to the index with `../../SKILL_TREE.md`, which is right for the
